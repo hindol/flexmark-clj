@@ -1,8 +1,11 @@
 (ns flexmark-clj.core
   (:require
+   [camel-snake-kebab.core :as csk]
    [clojure.java.io :as io]
+   [clojure.pprint :as pp]
    [clojure.string :as str])
   (:import
+   (com.vladsch.flexmark.ast Text)
    (com.vladsch.flexmark.ext.admonition AdmonitionExtension)
    (com.vladsch.flexmark.html HtmlRenderer)
    (com.vladsch.flexmark.parser Parser)
@@ -17,11 +20,31 @@
               out (io/output-stream "./resources/API-Methods.md")]
     (io/copy in out)))
 
+(defn class-name
+  [o]
+  (.getSimpleName (class o)))
+
+(defn node-key
+  [o]
+  (keyword (csk/->kebab-case (class-name o))))
+
+(defprotocol Converter
+  (convert [this children]))
+
+(extend-protocol Converter
+  Node
+  (convert [this children]
+    {(node-key this) (into [] children)})
+
+  Text
+  (convert [this _]
+    {(node-key this) (str (.getChars this))}))
+
 (defn siblings
   [node]
   (if (nil? node)
     []
-    (cons node (siblings (.getNext node)))))
+    (lazy-seq (cons node (siblings (.getNext node))))))
 
 (defn children
   [parent]
@@ -33,10 +56,9 @@
 (extend-protocol Visitor
   Node
   (visit [this]
-    (prn (class this))
-    (doseq [child (children this)]
-      (prn (class this))
-      (visit child))))
+    (let [children (for [child (children this)]
+                     (visit child))]
+      (convert this children))))
 
 (defn parse
   "Slurps a markdown string and spits a Clojure map."
@@ -45,20 +67,25 @@
         options    (doto (MutableDataSet.) (.set Parser/EXTENSIONS extensions))
         parser     (.build (Parser/builder options))
         parsed     (.parse parser markdown)]
-    (visit parsed)
+    (pp/pprint (visit parsed))
     parsed))
 
-(defn render-to-file
-  "Renders markdown to HTML."
+(defn render
+  "Takes in a markdown in AST form, spits the HTML."
+  [parsed]
+  (let [renderer (.build (HtmlRenderer/builder))]
+    (.render renderer parsed)))
+
+(defn markdown->html
   [in out]
   (with-open [reader (io/reader in)
-              writer (io/writer out)]
+              writer (io/writer out)
+              edn    (io/writer "./resources/API-Methods.edn")]
     (let [markdown (->> reader line-seq (str/join "\n"))
-          renderer (.build (HtmlRenderer/builder))]
-      (->> markdown
-           (parse)
-           (.render renderer)
-           (.write writer)))))
+          ast      (parse markdown)
+          html     (render ast)]
+      (pp/pprint (visit ast) edn)
+      (.write writer html))))
 
 (comment
-  (render-to-file "./resources/API-Methods.md" "./resources/API-Methods.html"))
+  (markdown->html "./resources/API-Methods.md" "./resources/API-Methods.html"))
