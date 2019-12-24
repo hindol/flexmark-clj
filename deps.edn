@@ -1,4 +1,6 @@
-{:aliases {:test   {:extra-paths ["test"]
+{:aliases {:dev    {:extra-deps {org.clojure/tools.trace {:mvn/version "0.7.10"}
+                                 spyscope                {:mvn/version "0.1.6"}  }}
+           :test   {:extra-paths ["test"]
                     :extra-deps  {org.slf4j/slf4j-simple        {:mvn/version "1.7.28"}
                                   lambdaisland/kaocha           {:mvn/version "0.0-565"}
                                   lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}
