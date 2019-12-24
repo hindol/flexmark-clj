@@ -1,0 +1,812 @@
+<p>description: Hyperledger Besu JSON-RPC API methods reference</p>
+<!--- END of page meta data -->
+<h1>Hyperledger Besu API Methods</h1>
+<p>{!global/Postman.md!}</p>
+<h2>Admin Methods</h2>
+<h3>admin_addPeer</h3>
+<p>Adds a <a href="../HowTo/Find-and-Connect/Static-Nodes.md">static node</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>string</code> : <a href="../Concepts/Node-Keys.md#enode-url">Enode URL</a> of peer to add</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>boolean</code> - <code>true</code> if peer added or <code>false</code> if peer already a <a href="../HowTo/Find-and-Connect/Static-Nodes.md">static node</a>.</p>
+<h3>admin_changeLogLevel</h3>
+<p>Changes the log level without restarting Besu. You can change the log level for all logs, or you can change the log level for specific packages or classes.</p>
+<p>Only one log level can be specified per RPC call.</p>
+<p><strong>Parameters</strong></p>
+<p><code>level</code> - <a href="CLI/CLI-Syntax.md#logging">Log level</a></p>
+<p><code>log_filter</code>: <code>Array</code> - Packages or classes to change the log level for. Optional.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>Success</code> if the log level has changed; otherwise <code>error</code>.</p>
+<p>This example changes the debug level for specified classes to <code>DEBUG</code>.</p>
+<p>This example changes the debug level of all logs to <code>WARN</code>.</p>
+<h3>admin_generateLogBloomCache</h3>
+<p>Generates cached log bloom indexes for blocks. APIs such as <a href="#eth_getlogs"><code>eth_getLogs</code></a>
+and <a href="#eth_getfilterlogs"><code>eth_getFilterLogs</code></a> use the indexes for improved
+performance.</p>
+<p>Must be manually executed to add new blocks to the indexes.</p>
+<p><strong>Parameters</strong></p>
+<p><code>integer</code> - Block to start generating indexes</p>
+<p><code>integer</code> - Block to stop generating indexes</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>object</em> - Log bloom index details:</p>
+<ul>
+<li><code>quantity</code> : <code>startBlock</code> - Starting block for the last requested cache generation</li>
+<li><code>quantity</code> : <code>endBlock</code> - Ending block for the last requested cache generation</li>
+<li><code>quantity</code> : <code>currentBlock</code> - The most recent block that was added to the cache</li>
+<li><code>boolean</code> : <code>indexing</code> - <code>true</code> if indexing is in progress</li>
+<li><code>boolean</code> : <code>true</code> if the request from this call to generate the cache has
+been accepted</li>
+</ul>
+<h3>admin_nodeInfo</h3>
+<p>Returns networking information about the node. The information includes general information about the node
+and specific information from each running Ethereum sub-protocol (for example, <code>eth</code>).</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : Node object</p>
+<p>Properties of the node object are:</p>
+<ul>
+<li><code>enode</code> - <a href="../Concepts/Node-Keys.md#enode-url">Enode URL</a> for the node</li>
+<li><code>listenAddr</code> - Host and port for the node</li>
+<li><code>name</code> - Client name</li>
+<li><code>id</code> - <a href="../Concepts/Node-Keys.md#node-public-key">Node public key</a></li>
+<li><code>ports</code> - Peer discovery and listening <a href="../HowTo/Find-and-Connect/Managing-Peers.md#port-configuration">ports</a></li>
+<li><code>protocols</code> - List of objects containing information for each Ethereum sub-protocol</li>
+</ul>
+<h3>admin_peers</h3>
+<p>Returns networking information about connected remote nodes.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>array</em> of <em>objects</em> - Object returned for each remote node.</p>
+<p>Properties of the remote node object are:</p>
+<ul>
+<li><code>version</code> - P2P protocol version</li>
+<li><code>name</code> - Client name</li>
+<li><code>caps</code> - List of Ethereum sub-protocol capabilities</li>
+<li><code>network</code> - Local and remote addresses established at time of bonding with the peer. The remote address may not
+match the hex value for <code>port</code>. The remote address depends on which node initiated the connection.</li>
+<li><code>port</code> - Port on the remote node on which P2P peer discovery is listening</li>
+<li><code>id</code> - Node public key. Excluding the <code>0x</code> prefix, the node public key is the ID in the enode URL <code>enode://&lt;id ex 0x&gt;@&lt;host&gt;:&lt;port&gt;</code>.</li>
+</ul>
+<h3>admin_removePeer</h3>
+<p>Removes a <a href="../HowTo/Find-and-Connect/Static-Nodes.md">static node</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>string</code> : <a href="../Concepts/Node-Keys.md#enode-url">Enode URL</a> of peer to remove</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>boolean</code> - <code>true</code> if peer removed or <code>false</code> if peer not a <a href="../HowTo/Find-and-Connect/Static-Nodes.md">static node</a>).</p>
+<h2>Web3 Methods</h2>
+<h3>web3_clientVersion</h3>
+<p>Returns the current client version.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>string</em> - Current client version.</p>
+<h3>web3_sha3</h3>
+<p>Returns a <a href="https://en.wikipedia.org/wiki/SHA-3">SHA3</a> hash of the specified data. The result value is a <a href="https://keccak.team/keccak.html">Keccak-256</a> hash, not the standardized SHA3-256.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - Data to convert to a SHA3 hash.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> (<em>DATA</em>) - SHA3 result of the input data.</p>
+<h2>Net Methods</h2>
+<h3>net_version</h3>
+<p>Returns the current chain ID.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>string</em> - Current chain ID.</p>
+<p>| Chain ID | Chain | Network | Description
+|----------|-------|---------|-------------------------------|
+| <code>1</code>      | ETH   | MainNet | Main Ethereum network         |
+| <code>3</code>      | ETH   | Ropsten | PoW test network              |
+| <code>4</code>      | ETH   | Rinkeby | PoA test network using Clique |
+| <code>5</code>      | ETH   | Goerli  | PoA test network using Clique |
+| <code>6</code>      | ETC   | Kotti   | PoA test network using Clique |
+| <code>61</code>     | ETC   | Classic | Main Ethereum Classic network |
+| <code>63</code>     | ETC   | Mordor  | PoW test network              |
+| <code>2018</code>   | ETH   | Dev     | PoW development network       |</p>
+<h3>net_listening</h3>
+<p>Indicates whether the client is actively listening for network connections.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> (<em>BOOLEAN</em>) - <code>true</code> if the client is actively listening for network connections; otherwise <code>false</code>.</p>
+<h3>net_peerCount</h3>
+<p>Returns the number of peers currently connected to the client.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>integer</em> - Number of connected peers in hexadecimal.</p>
+<h3>net_enode</h3>
+<p>Returns the <a href="../Concepts/Node-Keys.md#enode-url">enode URL</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>string</em> - <a href="../Concepts/Node-Keys.md#enode-url">Enode URL</a> for the node</p>
+<h3>net_services</h3>
+<p>Returns enabled services (for example, <code>jsonrpc</code>) and the host and port for each service.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>objects</em> - Enabled services</p>
+<h2>Eth Methods</h2>
+<h3>eth_syncing</h3>
+<p>Returns an object with data about the synchronization status, or <code>false</code> if not synchronizing.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>Object|Boolean</em> - Object with synchronization status data or <code>false</code>, when not synchronizing:</p>
+<ul>
+<li>
+<p><code>startingBlock</code> : <em>quantity</em> - Index of the highest block on the blockchain when the network synchronization starts.</p>
+</li>
+<li>
+<p><code>currentBlock</code> : <em>quantity</em> - Index of the latest block (also known as the best block) for the current node. This is the same index that <a href="#eth_blocknumber">eth_blockNumber</a> returns.</p>
+</li>
+<li>
+<p><code>highestBlock</code>: <em>quantity</em> - Index of the highest known block in the peer network (that is, the highest block so far discovered among peer nodes). This is the same value as <code>currentBlock</code> if the current node has no peers.</p>
+</li>
+</ul>
+<h3>eth_chainId</h3>
+<p>Returns the <a href="../Concepts/NetworkID-And-ChainID.md">chain ID</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>quantity</em> - Chain ID in hexadecimal.</p>
+<h3>eth_protocolVersion</h3>
+<p>Returns current Ethereum protocol version.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>quantity</em> - Ethereum protocol version</p>
+<h3>eth_coinbase</h3>
+<p>Returns the client coinbase address. The coinbase address is the account to which mining rewards are paid.</p>
+<p>To set a coinbase address, start Besu with the <code>--miner-coinbase</code> option set to a valid Ethereum account address.
+You can get the Ethereum account address from a client such as MetaMask or Etherscan. For example:</p>
+<p>!!!example
+<code>bash besu --miner-coinbase=&quot;0xfe3b557e8fb62b89f4916b721be55ceb828dbd73&quot; --rpc-http-enabled</code></p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>data</em> - Coinbase address.</p>
+<h3>eth_mining</h3>
+<p>Indicates whether the client is actively mining new blocks. Mining is paused while the client synchronizes with the network regardless of command settings or methods called.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> (<em>BOOLEAN</em>) - <code>true</code> if the client is actively mining new blocks; otherwise <code>false</code>.</p>
+<h3>eth_hashrate</h3>
+<p>Returns the number of hashes per second with which the node is mining.</p>
+<p>Is not supported for GPU mining.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>quantity</code> - Number of hashes per second</p>
+<h3>eth_gasPrice</h3>
+<p>Returns the current gas unit price in wei. It is the hexadecimal equivalent of the price specified for the <a href="CLI/CLI-Syntax.md#min-gas-price"><code>--min-gas-price</code></a> command line option when the node was started or the default minimum gas price.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>quantity</em> - Current gas unit price in wei as a hexadecimal value.</p>
+<h3>eth_accounts</h3>
+<p>Returns a list of account addresses that the client owns.</p>
+<p>!!!note
+This method returns an empty object because Besu <a href="../HowTo/Send-Transactions/Account-Management.md">doesn't support key management</a>
+inside the client.</p>
+<pre><code>Use [EthSigner](http://docs.ethsigner.pegasys.tech/en/latest/) with Besu to provide access to your key store and sign transactions.
+</code></pre>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>Array of data</code> : List of 20-byte account addresses owned by the client.</p>
+<h3>eth_blockNumber</h3>
+<p>Returns the index corresponding to the block number of the current chain head.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>QUANTITY</em> - Hexadecimal integer representing the index corresponding to the block number of the current chain head.</p>
+<h3>eth_getBalance</h3>
+<p>Returns the account balance of the specified address.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 20-byte account address from which to retrieve the balance.</p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>QUANTITY</em> - Current balance in wei as a hexadecimal value.</p>
+<h3>eth_getProof</h3>
+<p>Returns the account and storage values of the specified account, including the merkle proof.</p>
+<p>The API allows IoT devices or mobile apps which are unable to run light clients to verify responses from untrusted sources, by using a trusted block hash.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 20-byte address of the account or contract.</p>
+<p><code>ARRAY</code> - Array of 32-byte storage keys to generate proofs for.</p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>: <em>Object</em> - Account details:</p>
+<ul>
+<li><code>balance</code>:<code>Quantity</code> - Account balance</li>
+<li><code>codeHash</code>:<code>Data, 32-byte</code> - Hash of the account code</li>
+<li><code>nonce</code>:<code>Quantity</code> - Number of transactions sent from the account</li>
+<li><code>storageHash</code>:<code>Data, 32-byte</code> - SHA3 of the <code>storageRoot</code></li>
+<li><code>accountProof</code>:<code>Array</code> - RLP-encoded merkle tree nodes, starting with the <code>stateRoot</code></li>
+<li><code>storageProof</code>:<code>Array</code>- Storage entries. Each entry is an object that displays:
+<ul>
+<li><code>key</code>:<code>Quantity</code> - Storage key</li>
+<li><code>value</code>:<code>Quantity</code> - Storage value</li>
+<li><code>proof</code>:<code>Array</code> - RLP-encoded merkle tree nodes, starting with the <code>storageHash</code></li>
+</ul>
+</li>
+</ul>
+<h3>eth_getStorageAt</h3>
+<p>Returns the value of a storage position at a specified address.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - A 20-byte storage address.</p>
+<p><code>QUANTITY</code> - Integer index of the storage position.</p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>DATA</em> - The value at the specified storage position.</p>
+<h3>eth_getTransactionCount</h3>
+<p>Returns the number of transactions sent from a specified address. Use the <code>pending</code> tag to get the account nonce.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 20-byte account address.</p>
+<p><code>quantity|tag</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>quantity</em> - Integer representing the number of transactions sent from the specified address.</p>
+<h3>eth_getBlockTransactionCountByHash</h3>
+<p>Returns the number of transactions in the block matching the given block hash.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 32-byte block hash.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>quantity</code> - Integer representing the number of transactions in the specified block.</p>
+<h3>eth_getBlockTransactionCountByNumber</h3>
+<p>Returns the number of transactions in a block matching the specified block number.</p>
+<p><strong>Parameters</strong></p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>QUANTITY</em> - Integer representing the number of transactions in the specified block.</p>
+<h3>eth_getUncleByBlockHashAndIndex</h3>
+<p>Returns uncle specified by block hash and index.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 32-byte block hash.</p>
+<p><code>quantity</code> - Index of the uncle.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <a href="API-Objects.md#block-object">Block object</a></p>
+<h3>eth_getUncleByBlockNumberAndIndex</h3>
+<p>Returns uncle specified by block number and index.</p>
+<p><strong>Parameters</strong></p>
+<p><code>quantity|tag</code> - Index of the block, or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><code>quantity</code> - Index of the uncle.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <a href="API-Objects.md#block-object">Block object</a></p>
+<h3>eth_getUncleCountByBlockHash</h3>
+<p>Returns the number of uncles in a block from a block matching the given block hash.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 32-byte block hash.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>QUANTITY</em> - Integer representing the number of uncles in the specified block.</p>
+<h3>eth_getUncleCountByBlockNumber</h3>
+<p>Returns the number of uncles in a block matching the specified block number.</p>
+<p><strong>Parameters</strong></p>
+<p><code>QUANTITY|TAG</code> - Integer representing either the index of the block within the blockchain, or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>QUANTITY</em> - Integer representing the number of uncles in the specified block.</p>
+<h3>eth_getCode</h3>
+<p>Returns the code of the smart contract at the specified address. Compiled smart contract code is stored as a hexadecimal value.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 20-byte contract address.</p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>DATA</em> - Code stored at the specified address.</p>
+<h3>eth_sendRawTransaction</h3>
+<p>Sends a <a href="../HowTo/Send-Transactions/Transactions.md">signed transaction</a>. A transaction can send ether, deploy a contract, or interact with a contract.</p>
+<p>You can interact with contracts using <a href="../HowTo/Send-Transactions/Transactions.md#eth_call-or-eth_sendrawtransaction">eth_sendRawTransaction or eth_call</a>.</p>
+<p>To avoid exposing your private key, create signed transactions offline and send the signed transaction data using <code>eth_sendRawTransaction</code>.</p>
+<p>!!!important
+Besu does not implement <a href="../HowTo/Send-Transactions/Account-Management.md">eth_sendTransaction</a>.</p>
+<pre><code>[EthSigner](https://docs.ethsigner.pegasys.tech/) provides transaction signing and implements [`eth_sendTransaction`](https://docs.ethsigner.pegasys.tech/Using-EthSigner/Using-EthSigner/#eth_sendtransaction).
+</code></pre>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> -  Signed transaction serialized to hexadecimal format. For example:</p>
+<p><code>params: [&quot;0xf869018203e882520894f17f52151ebef6c7334fad080c5704d77216b732881bc16d674ec80000801ba02da1c48b670996dcb1f447ef9ef00b33033c48a4fe938f420bec3e56bfd24071a062e0aa78a81bf0290afbc3a9d8e9a068e6d74caa66c5e0fa8a46deaae96b0833&quot;]</code></p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>data</code> - 32-byte transaction hash</p>
+<h3>eth_call</h3>
+<p>Invokes a contract function locally and does not change the state of the blockchain.</p>
+<p>You can interact with contracts using <a href="../HowTo/Send-Transactions/Transactions.md#eth_call-or-eth_sendrawtransaction">eth_sendRawTransaction or eth_call</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><em>OBJECT</em> - <a href="API-Objects.md#transaction-call-object">Transaction call object</a>.</p>
+<p><em>QUANTITY|TAG</em> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>data</code> - Return value of the executed contract.</p>
+<h3>eth_estimateGas</h3>
+<p>Returns an estimate of how much gas is needed for a transaction to complete. The estimation process does not use
+gas and the transaction is not added to the blockchain. The resulting estimate can be greater than the amount of
+gas that the transaction actually uses, for various reasons including EVM mechanics and node performance.</p>
+<p>The <code>eth_estimateGas</code> call does not send a transaction. You must make a subsequent call to
+<a href="#eth_sendrawtransaction">eth_sendRawTransaction</a> to execute the transaction.</p>
+<p><strong>Parameters</strong></p>
+<p>The transaction call object parameters are the same as those for <a href="#eth_call">eth_call</a>, except that in <code>eth_estimateGas</code>,
+all fields are optional. Setting a gas limit is irrelevant to the estimation process (unlike transactions, in which gas
+limits apply).</p>
+<p><em>OBJECT</em> - <a href="API-Objects.md#transaction-call-object">Transaction call object</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>quantity</code> -  Amount of gas used.</p>
+<p>The following example returns an estimate of 21000 wei (0x5208) for the transaction.</p>
+<p>The following example request estimates the cost of deploying a simple storage smart contract to the network. The data field
+contains the hash of the compiled contract to be deployed. (You can obtain the compiled contract hash from your IDE;
+for example, <strong>Remix &gt; Compile tab &gt; details &gt; WEB3DEPLOY</strong>.) The result is 113355 wei.</p>
+<p><strong>Returns</strong></p>
+<h3>eth_getBlockByHash</h3>
+<p>Returns information about the block by hash.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 32-byte hash of a block.</p>
+<p><code>Boolean</code> - If <code>true</code>, returns the full <a href="API-Objects.md#transaction-object">transaction objects</a>; if <code>false</code>, returns the transaction hashes.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>OBJECT</em> - <a href="API-Objects.md#block-object">Block object</a> , or <code>null</code> when no block is found.</p>
+<h3>eth_getBlockByNumber</h3>
+<p>Returns information about a block by block number.</p>
+<p><strong>Parameters</strong></p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><code>Boolean</code> - If <code>true</code>, returns the full <a href="API-Objects.md#transaction-object">transaction objects</a>; if <code>false</code>, returns only the hashes of the transactions.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <em>OBJECT</em> - <a href="API-Objects.md#block-object">Block object</a> , or <code>null</code> when no block is found.</p>
+<h3>eth_getTransactionByHash</h3>
+<p>Returns transaction information for the specified transaction hash.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 32-byte transaction hash.</p>
+<p><strong>Returns</strong></p>
+<p>Object - <a href="API-Objects.md#transaction-object">Transaction object</a>, or <code>null</code> when no transaction is found.</p>
+<h3>eth_getTransactionByBlockHashAndIndex</h3>
+<p>Returns transaction information for the specified block hash and transaction index position.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 32-byte hash of a block.</p>
+<p><code>QUANTITY</code> - Integer representing the transaction index position.</p>
+<p><strong>Returns</strong></p>
+<p>Object - <a href="API-Objects.md#transaction-object">Transaction object</a>, or <code>null</code> when no transaction is found.</p>
+<h3>eth_getTransactionByBlockNumberAndIndex</h3>
+<p>Returns transaction information for the specified block number and transaction index position.</p>
+<p><strong>Parameters</strong></p>
+<p><code>QUANTITY|TAG</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><code>QUANTITY</code> - The transaction index position.</p>
+<p><strong>Returns</strong></p>
+<p>Object - <a href="API-Objects.md#transaction-object">Transaction object</a>, or <code>null</code> when no transaction is found.</p>
+<h3>eth_getTransactionReceipt</h3>
+<p>Returns the receipt of a transaction by transaction hash. Receipts for pending transactions are not available.</p>
+<p>If <a href="../HowTo/Send-Transactions/Revert-Reason.md">revert reason</a> is enabled, includes available revert
+reasons in the response.</p>
+<p><strong>Parameters</strong></p>
+<p><code>DATA</code> - 32-byte hash of a transaction.</p>
+<p><strong>Returns</strong></p>
+<p><code>Object</code> - <a href="API-Objects.md#transaction-receipt-object">Transaction receipt object</a>, or <code>null</code> when no receipt is found.</p>
+<h3>eth_newFilter</h3>
+<p>Creates a <a href="../Concepts/Events-and-Logs.md">log filter</a>. To poll for logs associated with the created filter, use <a href="#eth_getfilterchanges">eth_getFilterChanges</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>Object</code> - <a href="API-Objects.md#filter-options-object">Filter options object</a>.</p>
+<p>!!!note
+<code>fromBlock</code> and <code>toBlock</code> in the filter options object default to <code>latest</code>. To obtain logs using <code>eth_getFilterLogs</code>, set <code>fromBlock</code> and <code>toBlock</code> appropriately.</p>
+<p><strong>Returns</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<h3>eth_newBlockFilter</h3>
+<p>Creates a filter to retrieve new block hashes. To poll for new blocks, use <a href="#eth_getfilterchanges">eth_getFilterChanges</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<h3>eth_newPendingTransactionFilter</h3>
+<p>Creates a filter to retrieve new pending transactions hashes. To poll for new pending transactions, use <a href="#eth_getfilterchanges">eth_getFilterChanges</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<h3>eth_uninstallFilter</h3>
+<p>Uninstalls a filter with the specified ID. When a filter is no longer required, call this method.</p>
+<p>Filters time out when not requested by <a href="#eth_getfilterchanges">eth_getFilterChanges</a> for 10 minutes.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<p><strong>Returns</strong></p>
+<p><code>Boolean</code> - <code>true</code> if the filter was successfully uninstalled; otherwise <code>false</code>.</p>
+<h3>eth_getFilterChanges</h3>
+<p>Polls the specified filter and returns an array of changes that have occurred since the last poll.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>Array of Object</code> - If nothing changed since the last poll, an empty list. Otherwise:</p>
+<ul>
+<li>For filters created with <code>eth_newBlockFilter</code>, returns block hashes.</li>
+<li>For filters created with <code>eth_newPendingTransactionFilter</code>, returns transaction hashes.</li>
+<li>For filters created with <code>eth_newFilter</code>, returns <a href="API-Objects.md#log-object">log objects</a>.</li>
+</ul>
+<h3>eth_getFilterLogs</h3>
+<p>Returns an array of <a href="../Concepts/Events-and-Logs.md">logs</a> for the specified filter.</p>
+<p>Use <a href="#admin_generatelogbloomcache"><code>admin_generateLogBloomCache</code></a> to improve log retrieval performance.</p>
+<p>!!!note
+<code>eth_getFilterLogs</code> is only used for filters created with <code>eth_newFilter</code>.</p>
+<pre><code>  You can use `eth_getLogs` to specify a filter object and get logs without creating a filter.
+</code></pre>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Filter ID hash</p>
+<p><strong>Returns</strong></p>
+<p><code>array</code> - <a href="API-Objects.md#log-object">Log objects</a></p>
+<h3>eth_getLogs</h3>
+<p>Returns an array of <a href="../Concepts/Events-and-Logs.md">logs</a> matching a specified
+filter object.</p>
+<p>Use <a href="#admin_generatelogbloomcache"><code>admin_generateLogBloomCache</code></a> to improve log retrieval performance.</p>
+<p><strong>Parameters</strong></p>
+<p><code>Object</code> - <a href="API-Objects.md#filter-options-object">Filter options object</a></p>
+<p><strong>Returns</strong></p>
+<p><code>array</code> - <a href="API-Objects.md#log-object">Log objects</a></p>
+<h3>eth_getWork</h3>
+<p>Returns the hash of the current block, the seed hash, and the target boundary condition to be met.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>Array of DATA</code> with the following fields:</p>
+<ul>
+<li>DATA, 32 Bytes - Hash of the current block header (pow-hash).</li>
+<li>DATA, 32 Bytes - The seed hash used for the DAG.</li>
+<li>DATA, 32 Bytes - The target boundary condition to be met; 2^256 / difficulty.</li>
+</ul>
+<h3>eth_submitWork</h3>
+<p>Submits a Proof of Work (Ethash) solution.</p>
+<p>Used by mining software such as <a href="https://github.com/ethereum-mining/ethminer">Ethminer</a>.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>DATA, 8 Bytes - Retrieved nonce.</li>
+<li>DATA, 32 Bytes - Hash of the block header (PoW-hash).</li>
+<li>DATA, 32 Bytes - Mix digest.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>result: Boolean</code>, <code>true</code> if the provided solution is valid, otherwise <code>false</code>.</p>
+<h2>Clique Methods</h2>
+<h3>clique_discard</h3>
+<p>Discards a proposal to <a href="../HowTo/Configure/Consensus-Protocols/Clique.md#adding-and-removing-signers">add or remove a signer with the specified address</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 20-byte address of proposed signer.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: boolean</code> - <code>true</code></p>
+<h3>clique_getSigners</h3>
+<p>Lists <a href="../HowTo/Configure/Consensus-Protocols/Clique.md#adding-and-removing-signers">signers for the specified block</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>quantity|tag</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: array of data</code> - List of 20-byte addresses of signers.</p>
+<h3>clique_getSignerMetrics</h3>
+<p>Provides validator metrics for the specified range:</p>
+<ul>
+<li>Number of blocks from each validator</li>
+<li>Block number of the last block proposed by each validator (if any proposed in the specified range)</li>
+<li>All validators present in the last block</li>
+</ul>
+<p><strong>Parameters</strong></p>
+<p><code>fromBlockNumber</code> - Integer representing a block number or the string tag <code>earliest</code> as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a></p>
+<p><code>toBlockNumber</code> - Integer representing a block number or one of the string tags <code>latest</code> or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a></p>
+<p>If no parameters are specified, metrics are provided for the last 100 blocks or all blocks if there are less than 100 blocks.</p>
+<p>If only the first parameter is specified, metrics are provided for all blocks from the block specified by the first
+parameter to the latest block.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>: <em>object</em> - List of validator objects</p>
+<h3>clique_getSignersAtHash</h3>
+<p>Lists signers for the specified block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 32-byte block hash.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: array of data</code> - List of 20-byte addresses of signers.</p>
+<h3>clique_propose</h3>
+<p>Proposes <a href="../HowTo/Configure/Consensus-Protocols/Clique.md#adding-and-removing-signers">adding or removing a signer with the specified address</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 20-byte address.</p>
+<p><code>boolean</code> -  <code>true</code> to propose adding signer or <code>false</code> to propose removing signer.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: boolean</code> - <code>true</code></p>
+<h3>clique_proposals</h3>
+<p>Returns <a href="../HowTo/Configure/Consensus-Protocols/Clique.md#adding-and-removing-signers">current proposals</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<em>object</em> - Map of account addresses to corresponding boolean values indicating the proposal for each account.</p>
+<p>If the boolean value is <code>true</code>, the proposal is to add a signer. If <code>false</code>, the proposal is to remove a signer.</p>
+<h2>Debug Methods</h2>
+<h3>debug_accountRange</h3>
+<p><a href="https://github.com/ethereum/retesteth/wiki/Retesteth-Overview">Retesteth</a> uses <code>debug_accountRange</code> to implement debugging.</p>
+<p>Returns the accounts for a specified block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>blockHashOrNumber</code> : <code>data</code> - Block hash or number</p>
+<p><code>txIndex</code> : <code>integer</code> - Transaction index from which to start</p>
+<p><code>address</code> : <code>data</code> - Address hash from which to start</p>
+<p><code>limit</code> : <code>integer</code> - Maximum number of account entries to return</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>object</code> - Account details:</p>
+<ul>
+<li><code>addressMap</code>:<code>object</code> - List of address hashes and account addresses.</li>
+<li><code>nextKey</code>:<code>data</code> - Hash of the next address if any addresses are left in the state, otherwise zero</li>
+</ul>
+<h3>debug_storageRangeAt</h3>
+<p><a href="https://remix.ethereum.org/">Remix</a> uses <code>debug_storageRangeAt</code> to implement debugging. Use the <em>Debugger</em> tab in Remix rather than calling <code>debug_storageRangeAt</code> directly.</p>
+<p>Returns the contract storage for the specified range.</p>
+<p><strong>Parameters</strong></p>
+<p><code>blockHash</code> : <code>data</code> - Block hash</p>
+<p><code>txIndex</code> : <code>integer</code> - Transaction index from which to start</p>
+<p><code>address</code> : <code>data</code> - Contract address</p>
+<p><code>startKey</code> : <code>hash</code> - Start key</p>
+<p><code>limit</code> : <code>integer</code> - Number of storage entries to return</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>object</code> - <a href="API-Objects.md#range-object">Range object</a></p>
+<h3>debug_metrics</h3>
+<p>Returns metrics providing information on the internal operation of Besu.</p>
+<p>The available metrics may change over time. The JVM metrics may vary based on the JVM implementation being used.</p>
+<p>The metric types are:</p>
+<ul>
+<li>Timer</li>
+<li>Counter</li>
+<li>Gauge</li>
+</ul>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>object</code></p>
+<h3>debug_traceTransaction</h3>
+<p><a href="https://remix.ethereum.org/">Remix</a> uses <code>debug_traceTransaction</code> to implement debugging. Use the <em>Debugger</em> tab in Remix rather than calling <code>debug_traceTransaction</code> directly.</p>
+<p>Reruns the transaction with the same state as when the transaction was executed.</p>
+<p><strong>Parameters</strong></p>
+<p><code>transactionHash</code> : <code>data</code> - Transaction hash.</p>
+<p><code>Object</code> - request options (all optional and default to <code>false</code>):</p>
+<ul>
+<li><code>disableStorage</code> : <code>boolean</code> - <code>true</code> disables storage capture.</li>
+<li><code>disableMemory</code> : <code>boolean</code> - <code>true</code> disables memory capture.</li>
+<li><code>disableStack</code> : <code>boolean</code> - <code>true</code> disables stack capture.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>object</code> - <a href="API-Objects.md#trace-object">Trace object</a>.</p>
+<h3>debug_traceBlock</h3>
+<p>Returns full trace of all invoked opcodes of all transactions included in the block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>Block</code> : <code>data</code> - RLP of the block</p>
+<p><code>Object</code> - request options (all optional and default to <code>false</code>):</p>
+<ul>
+<li><code>disableStorage</code> : <code>boolean</code> - <code>true</code> disables storage capture.</li>
+<li><code>disableMemory</code> : <code>boolean</code> - <code>true</code> disables memory capture.</li>
+<li><code>disableStack</code> : <code>boolean</code> - <code>true</code> disables stack capture.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>object</code> - <a href="API-Objects.md#trace-object">Trace object</a>.</p>
+<h3>debug_traceBlockByHash</h3>
+<p>Returns full trace of all invoked opcodes of all transactions included in the block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>block hash</code> : <code>data</code> - Block hash</p>
+<p><code>Object</code> - request options (all optional and default to <code>false</code>):</p>
+<ul>
+<li><code>disableStorage</code> : <code>boolean</code> - <code>true</code> disables storage capture.</li>
+<li><code>disableMemory</code> : <code>boolean</code> - <code>true</code> disables memory capture.</li>
+<li><code>disableStack</code> : <code>boolean</code> - <code>true</code> disables stack capture.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>array of objects</code> - <a href="API-Objects.md#trace-object">Trace objects</a>.</p>
+<h3>debug_traceBlockByNumber</h3>
+<p>Returns full trace of all invoked opcodes of all transactions included in the block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>quantity|tag</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><code>Object</code> - request options (all optional and default to <code>false</code>):</p>
+<ul>
+<li><code>disableStorage</code> : <code>boolean</code> - <code>true</code> disables storage capture.</li>
+<li><code>disableMemory</code> : <code>boolean</code> - <code>true</code> disables memory capture.</li>
+<li><code>disableStack</code> : <code>boolean</code> - <code>true</code> disables stack capture.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>result</code>:<code>array of objects</code> - <a href="API-Objects.md#trace-object">Trace objects</a>.</p>
+<h2>Miner Methods</h2>
+<h3>miner_start</h3>
+<p>Starts the mining process. To start mining, a miner coinbase must have been previously specified using the <a href="CLI/CLI-Syntax.md#miner-coinbase"><code>--miner-coinbase</code></a> command line option.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> :  <code>boolean</code> - <code>true</code> if the mining start request was received successfully; otherwise returns an error.</p>
+<h3>miner_stop</h3>
+<p>Stops the mining process on the client.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> :  <code>boolean</code> - <code>true</code> if the mining stop request was received successfully; otherwise returns an error.</p>
+<h2>IBFT 2.0 Methods</h2>
+<h3>ibft_discardValidatorVote</h3>
+<p>Discards a proposal to <a href="../HowTo/Configure/Consensus-Protocols/IBFT.md#adding-and-removing-validators">add or remove a validator</a> with the specified address.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 20-byte address of proposed validator</p>
+<p><strong>Returns</strong></p>
+<p><code>result: boolean</code> - <code>true</code></p>
+<h3>ibft_getPendingVotes</h3>
+<p>Returns <a href="../HowTo/Configure/Consensus-Protocols/IBFT.md#adding-and-removing-validators">current votes</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>: <code>object</code> - Map of account addresses to corresponding boolean values indicating the vote for each account.</p>
+<p>If the boolean value is <code>true</code>, the vote is to add a validator. If <code>false</code>, the proposal is to remove a validator.</p>
+<h3>ibft_getValidatorsByBlockHash</h3>
+<p>Lists the validators defined in the specified block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 32-byte block hash</p>
+<p><strong>Returns</strong></p>
+<p><code>result: array of data</code> - List of validator addresses</p>
+<h3>ibft_getValidatorsByBlockNumber</h3>
+<p>Lists the validators defined in the specified block.</p>
+<p><strong>Parameters</strong></p>
+<p><code>quantity|tag</code> - Integer representing a block number or one of the string tags <code>latest</code>, <code>earliest</code>, or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a>.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: array of data</code> - List of validator addresses</p>
+<h3>ibft_proposeValidatorVote</h3>
+<p>Proposes <a href="../HowTo/Configure/Consensus-Protocols/IBFT.md#adding-and-removing-validators">adding or removing a validator</a> with the specified address.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Account address</p>
+<p><code>boolean</code> -  <code>true</code> to propose adding validator or <code>false</code> to propose removing validator.</p>
+<p><strong>Returns</strong></p>
+<p><code>result: boolean</code> - <code>true</code></p>
+<h3>ibft_getSignerMetrics</h3>
+<p>Provides validator metrics for the specified range:</p>
+<ul>
+<li>Number of blocks from each validator</li>
+<li>Block number of the last block proposed by each validator (if any proposed in the specified range)</li>
+<li>All validators present in the last block of the range</li>
+</ul>
+<p><strong>Parameters</strong></p>
+<p><code>fromBlockNumber</code> - Integer representing a block number or the string tag <code>earliest</code> as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a></p>
+<p><code>toBlockNumber</code> - Integer representing a block number or one of the string tags <code>latest</code> or <code>pending</code>, as described in <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#block-parameter">Block Parameter</a></p>
+<p>If no parameters are specified, metrics are provided for the last 100 blocks or all blocks if there are less than 100 blocks.</p>
+<p>If only the first parameter is specified, metrics are provided for all blocks from the block specified by the first
+parameter to the latest block.</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code>: <em>object</em> - List of validator objects</p>
+<h2>Permissioning Methods</h2>
+<p>The permissioning API methods are used for <a href="../HowTo/Limit-Access/Local-Permissioning.md">local</a> permissioning only.</p>
+<h3>perm_addAccountsToWhitelist</h3>
+<p>Adds accounts (participants) to the <a href="../HowTo/Limit-Access/Local-Permissioning.md#account-whitelisting">accounts whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>list of strings</code> - List of account addresses</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>Success</code> or <code>error</code>. Errors include attempting to add accounts already on the whitelist or
+including invalid account addresses.</p>
+<h3>perm_getAccountsWhitelist</h3>
+<p>Lists accounts (participants) in the <a href="../HowTo/Limit-Access/Local-Permissioning.md#account-whitelisting">accounts whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result: list</code> - Accounts (participants) in the accounts whitelist.</p>
+<h3>perm_removeAccountsFromWhitelist</h3>
+<p>Removes accounts (participants) from the <a href="../HowTo/Limit-Access/Local-Permissioning.md#account-whitelisting">accounts whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>list of strings</code> - List of account addresses</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>Success</code> or <code>error</code>. Errors include attempting to remove accounts not on the whitelist or
+including invalid account addresses.</p>
+<h3>perm_addNodesToWhitelist</h3>
+<p>Adds nodes to the <a href="../HowTo/Limit-Access/Local-Permissioning.md#node-whitelisting">nodes whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>list of strings</code> - List of <a href="../Concepts/Node-Keys.md#enode-url">enode URLs</a></p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>Success</code> or <code>error</code>. Errors include attempting to add nodes already on the whitelist or
+including invalid enode URLs.</p>
+<h3>perm_getNodesWhitelist</h3>
+<p>Lists nodes in the <a href="../HowTo/Limit-Access/Local-Permissioning.md#node-whitelisting">nodes whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result: list</code> - <a href="../Concepts/Node-Keys.md#enode-url">Enode URLs</a> of nodes in the nodes whitelist.</p>
+<h3>perm_removeNodesFromWhitelist</h3>
+<p>Removes nodes from the <a href="../HowTo/Limit-Access/Local-Permissioning.md#node-whitelisting">nodes whitelist</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>list of strings</code> - List of <a href="../Concepts/Node-Keys.md#enode-url">enode URLs</a></p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>Success</code> or <code>error</code>. Errors include attempting to remove nodes not on the whitelist or
+including invalid enode URLs.</p>
+<h3>perm_reloadPermissionsFromFile</h3>
+<p>Reloads the accounts and nodes whitelists from the <a href="../HowTo/Limit-Access/Local-Permissioning.md#permissions-configuration-file">permissions configuration file</a>.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - <code>Success</code> or <code>error</code> if the permissions configuration file is not valid.</p>
+<h2>Txpool Methods</h2>
+<h3>txpool_besuStatistics</h3>
+<p>Lists statistics about the node transaction pool.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - Transaction pool statistics:</p>
+<ul>
+<li><code>maxSize</code> - Maximum number of transactions kept in the transaction pool. Use the <a href="CLI/CLI-Syntax.md#tx-pool-max-size"><code>--tx-pool-max-size</code></a>
+option to configure the maximum size.</li>
+<li><code>localCount</code> - Number of transactions submitted directly to this node</li>
+<li><code>remoteCount</code> - Number of transactions received from remote nodes.</li>
+</ul>
+<h3>txpool_besuTransactions</h3>
+<p>Lists transactions in the node transaction pool.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> - List of transactions</p>
+<h2>EEA Methods</h2>
+<h3>eea_sendRawTransaction</h3>
+<p>Distributes the <a href="../HowTo/Send-Transactions/Creating-Sending-Private-Transactions.md">private transaction</a>,
+generates the <a href="../Concepts/Privacy/Private-Transaction-Processing.md">Privacy Marker Transaction</a> and submits it to the transaction pool,
+and returns the transaction hash of the <a href="../Concepts/Privacy/Private-Transaction-Processing.md">Privacy Marker Transaction</a>.</p>
+<p>The signed transaction passed as an input parameter includes the <code>privateFrom</code>, <a href="../HowTo/Send-Transactions/Creating-Sending-Private-Transactions.md#eea-compliant-or-besu-extended-privacy"><code>privateFor</code> or <code>privacyGroupId</code></a>,
+and <code>restriction</code> fields.</p>
+<p>To avoid exposing your private key, create signed transactions offline and send the signed transaction
+data using <code>eea_sendRawTransaction</code>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> -  Signed RLP-encoded private transaction. For example:</p>
+<p><code>params: [&quot;0xf869018203e882520894f17f52151ebef6c7334fad080c5704d77216b732881bc16d674ec80000801ba02da1c48b670996dcb1f447ef9ef00b33033c48a4fe938f420bec3e56bfd24071a062e0aa78a81bf0290afbc3a9d8e9a068e6d74caa66c5e0fa8a46deaae96b0833&quot;]</code></p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>data</code> - 32-byte transaction hash of the <a href="../Concepts/Privacy/Private-Transaction-Processing.md">Privacy Marker Transaction</a></p>
+<h2>Priv Methods</h2>
+<h3>priv_distributeRawTransaction</h3>
+<p>Distributes a signed, RLP encoded <a href="../HowTo/Send-Transactions/Creating-Sending-Private-Transactions.md">private transaction</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> -  Signed RLP-encoded private transaction. For example:</p>
+<p><code>params: [&quot;0xf869018203e882520894f17f52151ebef6c7334fad080c5704d77216b732881bc16d674ec80000801ba02da1c48b670996dcb1f447ef9ef00b33033c48a4fe938f420bec3e56bfd24071a062e0aa78a81bf0290afbc3a9d8e9a068e6d74caa66c5e0fa8a46deaae96b0833&quot;]</code></p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>data</code> - 32-byte enclave key. The enclave key is a pointer to the private transaction in <a href="https://docs.orion.pegasys.tech/">Orion</a>.</p>
+<h3>priv_getEeaTransactionCount</h3>
+<p>Returns the private transaction count for the specified account and <a href="../Concepts/Privacy/Privacy-Groups.md#eea-compliant-privacy">group of sender and recipients</a>.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Account address</p>
+<p><code>data</code> - Base64 encoded Orion address of the sender</p>
+<p><code>array of data</code> - Base64 encoded Orion addresses of recipients</p>
+<p><strong>Returns</strong></p>
+<p><code>quantity</code> - Integer representing the number of private transactions sent from the address to the specified group of sender and recipients.</p>
+<h3>priv_getPrivacyPrecompileAddress</h3>
+<p>Returns the address of the <a href="../Concepts/Privacy/Private-Transaction-Processing.md">privacy precompiled contract</a>.
+The address is specified by the <a href="CLI/CLI-Syntax.md#privacy-precompiled-address"><code>--privacy-precompiled-address</code></a> command line option.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p><code>result</code> : <code>data</code> - Address of the privacy precompile</p>
+<h3>priv_getPrivateTransaction</h3>
+<p>Returns the private transaction if you are a participant; otherwise, null.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Transaction hash returned by <a href="#eea_sendrawtransaction"><code>eea_sendRawTransaction</code></a> or
+<a href="https://docs.ethsigner.pegasys.tech/en/latest/Using-EthSigner/Using-EthSigner/#eea_sendtransaction"><code>eea_sendTransction</code></a>. .</p>
+<p><strong>Returns</strong></p>
+<p>Object - <a href="API-Objects.md#private-transaction-object">Private transaction object</a>, or <code>null</code> if not a participant in the private transaction.</p>
+<h3>priv_createPrivacyGroup</h3>
+<p>Creates a privacy group containing the specified members. Members are specified by their Orion public key.</p>
+<p><strong>Parameters</strong></p>
+<p><code>Object</code> - Request options:</p>
+<ul>
+<li><code>addresses</code>: <code>array of data</code> - Array of members specified by Orion public keys.</li>
+<li><code>name</code>: <code>string</code> - Privacy group name. Optional.</li>
+<li><code>description</code>: <code>string</code> - Privacy group description. Optional.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p>Privacy group ID</p>
+<h3>priv_deletePrivacyGroup</h3>
+<p>Deletes the specified privacy group.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Privacy group ID</p>
+<h3>priv_findPrivacyGroup</h3>
+<p>Returns a list of privacy groups containing only the listed members. For example, if the listed members
+are A and B, a privacy group containing A, B, and C is not returned.</p>
+<p><strong>Parameters</strong></p>
+<p><code>array of data</code> - Members specified by Orion public keys</p>
+<p><strong>Returns</strong></p>
+<p>Privacy groups containing only the specified members. Privacy groups are <a href="../Concepts/Privacy/Privacy-Groups.md#eea-compliant-privacy">EEA-compliant</a>
+or <a href="../Concepts/Privacy/Privacy-Groups.md#besu-extended-privacy">Besu-extended</a> with types:</p>
+<ul>
+<li><code>LEGACY</code> for EEA-compliant groups</li>
+<li><code>BESU</code> for Besu-extended groups.</li>
+</ul>
+<h3>priv_getTransactionCount</h3>
+<p>Returns the private transaction count for specified account and privacy group.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - Account address</p>
+<p><code>data</code> - Privacy group ID</p>
+<p><strong>Returns</strong></p>
+<p><code>quantity</code> - Integer representing the number of private transactions sent from the address to the specified privacy group.</p>
+<h3>priv_getTransactionReceipt</h3>
+<p>Returns information about the private transaction after the transaction was mined. Receipts for pending transactions are not available.</p>
+<p><strong>Parameters</strong></p>
+<p><code>data</code> - 32-byte hash of a transaction.</p>
+<p><strong>Returns</strong></p>
+<p><code>Object</code> - <a href="API-Objects.md#private-transaction-receipt-object">Private Transaction receipt object</a>, or <code>null</code> if no receipt found.</p>
+<h2>Miscellaneous Methods</h2>
+<h3>rpc_modules</h3>
+<p>Lists <a href="../HowTo/Interact/APIs/Using-JSON-RPC-API.md#api-methods-enabled-by-default">enabled APIs</a> and the version of each.</p>
+<p><strong>Parameters</strong></p>
+<p>None</p>
+<p><strong>Returns</strong></p>
+<p>Enabled APIs.</p>

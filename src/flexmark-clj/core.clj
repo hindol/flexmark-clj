@@ -1,15 +1,13 @@
 (ns flexmark-clj.core
   (:require
-   [camel-snake-kebab.core :as csk]
    [clojure.java.io :as io]
    [clojure.pprint :as pp]
-   [clojure.string :as str])
+   [clojure.string :as str]
+   [flexmark-clj.marccup :as marccup])
   (:import
-   (com.vladsch.flexmark.ast Text)
    (com.vladsch.flexmark.ext.admonition AdmonitionExtension)
    (com.vladsch.flexmark.html HtmlRenderer)
    (com.vladsch.flexmark.parser Parser)
-   (com.vladsch.flexmark.util.ast Node)
    (com.vladsch.flexmark.util.data MutableDataSet)
    (java.util Arrays)))
 
@@ -20,25 +18,7 @@
               out (io/output-stream "./resources/API-Methods.md")]
     (io/copy in out)))
 
-(defn class-name
-  [o]
-  (.getSimpleName (class o)))
-
-(defn node-key
-  [o]
-  (keyword (csk/->kebab-case (class-name o))))
-
-(defprotocol Converter
-  (convert [this children]))
-
-(extend-protocol Converter
-  Node
-  (convert [this children]
-    {(node-key this) (into [] children)})
-
-  Text
-  (convert [this _]
-    {(node-key this) (str (.getChars this))}))
+(re-matches #"[^{]+\{([^}]*)\}" "Link{text=--rpc-http-host, url=CLI/CLI-Syntax.md#rpc-http-host, title=}")
 
 (defn siblings
   [node]
@@ -56,9 +36,8 @@
 (extend-protocol Visitor
   Node
   (visit [this]
-    (let [children (for [child (children this)]
-                     (visit child))]
-      (convert this children))))
+    (into (marccup/render this) (for [child (children this)]
+                                 (visit child)))))
 
 (defn parse
   "Slurps a markdown string and spits a Clojure map."
@@ -67,7 +46,6 @@
         options    (doto (MutableDataSet.) (.set Parser/EXTENSIONS extensions))
         parser     (.build (Parser/builder options))
         parsed     (.parse parser markdown)]
-    (pp/pprint (visit parsed))
     parsed))
 
 (defn render
@@ -87,5 +65,4 @@
       (pp/pprint (visit ast) edn)
       (.write writer html))))
 
-(comment
-  (markdown->html "./resources/API-Methods.md" "./resources/API-Methods.html"))
+(markdown->html "./resources/API-Methods.md" "./resources/API-Methods.html")
