@@ -9,14 +9,20 @@
    (com.vladsch.flexmark.ext.admonition AdmonitionBlock)
    (com.vladsch.flexmark.util.ast Node)))
 
-(defn class-name
+(defn ^:private class-name
   [o]
   (-> o
       (class)
       (.getSimpleName)
       (csk/->kebab-case)))
 
-(defn parse-attrs
+(defn ^:private ->tag
+  [o]
+  (-> o
+      (class-name)
+      (keyword)))
+
+(defn ^:private parse-attrs
   "Extracts the attributes of a class from its string representation.
    Returns a Clojure map of the attributes."
   [s]
@@ -28,23 +34,35 @@
            (into {})
            (walk/keywordize-keys)))))
 
+(defn tag
+  [[tag _ & _]]
+  tag)
+
+(defn attrs
+  [[_ attrs & _]]
+  attrs)
+
+(defn content
+  [[_ _ & content]]
+  content)
+
 (defprotocol Renderer
   (render [this]))
 
 (extend-protocol Renderer
   AdmonitionBlock
   (render [this]
-    [(-> this class-name keyword) {:title (str (.getTitle this))
-                                   :info  (str (.getInfo this))}])
+    [(->tag this) {:title (str (.getTitle this))
+                   :info  (str (.getInfo this))}])
 
   Heading
   (render [this]
-    [(-> this class-name keyword) {:level (.getLevel this)}])
+    [(->tag this) {:level (.getLevel this)}])
 
   Node
   (render [this]
-    [(-> this class-name keyword) (parse-attrs (str this))])
+    [(->tag this) (parse-attrs (str this))])
 
   Text
   (render [this]
-    [(-> this class-name keyword) {} (str (.getChars this))]))
+    [(->tag this) {} (str (.getChars this))]))

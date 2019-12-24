@@ -37,16 +37,15 @@
   Node
   (visit [this]
     (into (marccup/render this) (for [child (children this)]
-                                 (visit child)))))
+                                  (visit child)))))
 
 (defn parse
   "Slurps a markdown string and spits a Clojure map."
   [markdown]
   (let [extensions (Arrays/asList (into-array [(AdmonitionExtension/create)]))
         options    (doto (MutableDataSet.) (.set Parser/EXTENSIONS extensions))
-        parser     (.build (Parser/builder options))
-        parsed     (.parse parser markdown)]
-    parsed))
+        parser     (.build (Parser/builder options))]
+    (.parse parser markdown)))
 
 (defn render
   "Takes in a markdown in AST form, spits the HTML."
@@ -61,8 +60,16 @@
               edn    (io/writer "./resources/API-Methods.edn")]
     (let [markdown (->> reader line-seq (str/join "\n"))
           ast      (parse markdown)
+          marccup  (visit ast)
           html     (render ast)]
-      (pp/pprint (visit ast) edn)
+      (pp/pprint (->> marccup
+                      (marccup/content)
+                      (filter #(-> % marccup/tag (= :heading)))
+                      (filter #(-> % marccup/attrs (= {:level 3})))
+                      (mapcat marccup/content)
+                      (mapcat marccup/content)
+                      (into []))
+                 edn)
       (.write writer html))))
 
 (markdown->html "./resources/API-Methods.md" "./resources/API-Methods.html")
