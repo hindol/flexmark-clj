@@ -1,0 +1,44 @@
+= flexmark-clj
+A (very) thin wrapper around flexmark-java, in Clojure.
+
+Turn `# Hello, world!` into a Hiccup-esque Clojure data structure `[:document {} [:heading {:level 1} [:text {} "Hello, world!"]]]` or into HTML. Uses https://github.com/vsch/flexmark-java[flexmark-java] under the hood to parse and render.
+
+== Usage
+
+[WARNING]
+.Pre-alpha Library
+====
+The public facing API can (and will) change. Do not use for serious projects.
+====
+
+There are no releases yet. Depend on the `+git+` coordinates directly.
+
+.deps.edn
+[source,clojure]
+----
+{:deps
+ {com.github.hindol/flexmark-clj
+  {:git/url "https://github.com/hindol/flexmark-clj"
+   :sha "79d00514254a086bcd6d174b41c6d5b49790579c"}}} ;; <1>
+----
+<1> The latest commit hash from `+master+` branch.
+
+== Quickstart
+
+.main.clj
+[source,clojure]
+----
+(with-open [reader (io/reader "./resources/API-Methods.md")   ;; <1>
+            writer (io/writer "./resources/API-Methods.html") ;; <2>
+            edn    (io/writer "./resources/API-Methods.edn")] ;; <3>
+  (let [markdown (->> reader line-seq (str/join "\n"))
+        ast      (markdown->ast markdown)
+        marccup  (ast->marccup ast)                           ;; <4>
+        html     (ast->html ast)]
+    (pp/pprint marccup edn)
+    (.write writer html)))
+----
+<1> See: https://raw.githubusercontent.com/Hindol/flexmark-clj/master/resources/API-Methods.md[API-Methods.md]
+<2> See: https://github.com/Hindol/flexmark-clj/blob/master/resources/API-Methods.html[API-Methods.html]
+<3> See: https://github.com/Hindol/flexmark-clj/blob/master/resources/API-Methods.edn[API-Methods.edn]
+<4> Marccup = Hiccup-esque Markdown
