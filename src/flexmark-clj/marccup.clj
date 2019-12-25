@@ -34,18 +34,6 @@
            (into {})
            (walk/keywordize-keys)))))
 
-(defn tag
-  [[tag _ & _]]
-  tag)
-
-(defn attrs
-  [[_ attrs & _]]
-  attrs)
-
-(defn content
-  [[_ _ & content]]
-  content)
-
 (defprotocol Renderer
   (render [this]))
 
