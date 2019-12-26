@@ -25,6 +25,32 @@ There are no releases yet. Depend on the `+git+` coordinates directly.
 
 == Quickstart
 
+The API consists of three functions.
+
+[source,clojure]
+----
+(defn markdown->tree
+  "Parses a Markdown string into a tree of Flexmark nodes."
+  [markdown]
+  ...)
+----
+
+[source, clojure]
+----
+(defn tree->marccup
+  "Walks the tree of Flexmark nodes, returns a Hiccup-esque Clojure array."
+  [parsed]
+  ...)
+----
+
+[source,clojure]
+----
+(defn tree->html
+  "Takes in a tree of Flexmark nodes, returns the rendered HTML in a string."
+  [parsed]
+  ...)
+----
+
 .main.clj
 [source,clojure]
 ----
@@ -32,9 +58,9 @@ There are no releases yet. Depend on the `+git+` coordinates directly.
             writer (io/writer "./resources/API-Methods.html") ;; <2>
             edn    (io/writer "./resources/API-Methods.edn")] ;; <3>
   (let [markdown (->> reader line-seq (str/join "\n"))
-        ast      (markdown->ast markdown)
-        marccup  (ast->marccup ast)                           ;; <4>
-        html     (ast->html ast)]
+        tree     (markdown->tree markdown)
+        marccup  (tree->marccup tree)                         ;; <4>
+        html     (tree->html tree)]
     (pp/pprint marccup edn)
     (.write writer html)))
 ----

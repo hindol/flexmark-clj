@@ -12,20 +12,20 @@
    (com.vladsch.flexmark.util.data MutableDataSet)
    (java.util Arrays)))
 
-(defn update-besu-methods
+(defn ^:private update-besu-methods
   "Pulls latest Besu API methods' documentation from Github."
   []
   (with-open [in  (io/input-stream "https://raw.githubusercontent.com/hyperledger/besu-docs/master/docs/Reference/API-Methods.md")
               out (io/output-stream "./resources/API-Methods.md")]
     (io/copy in out)))
 
-(defn siblings
+(defn ^:private siblings
   [node]
   (if (nil? node)
     []
     (lazy-seq (cons node (siblings (.getNext node))))))
 
-(defn children
+(defn ^:private children
   [parent]
   (siblings (.getFirstChild parent)))
 
@@ -38,7 +38,7 @@
     (visit-fn this (for [child (children this)]
                      (visit child :visit-fn visit-fn)))))
 
-(defn markdown->ast
+(defn markdown->tree
   "Parses a Markdown string into a tree of Flexmark nodes."
   [markdown]
   (let [extensions (Arrays/asList (into-array [(AdmonitionExtension/create)]))
@@ -46,13 +46,13 @@
         parser     (.build (Parser/builder options))]
     (.parse parser markdown)))
 
-(defn ast->marccup
-  "Walks the tree of Flexmark nodes, outputs a Hiccup-esque Clojure array."
+(defn tree->marccup
+  "Walks the tree of Flexmark nodes, returns a Hiccup-esque Clojure array."
   [parsed]
   (visit parsed :visit-fn #(md/render %1 %2 {:unwrap-text true})))
 
-(defn ast->html
-  "Takes in a Markdown in AST form, spits the HTML as a string."
+(defn tree->html
+  "Takes in a tree of Flexmark nodes, returns the rendered HTML in a string."
   [parsed]
   (let [renderer (.build (HtmlRenderer/builder))]
     (.render renderer parsed)))
@@ -61,8 +61,8 @@
                      writer (io/writer "./resources/API-Methods.html")
                      edn    (io/writer "./resources/API-Methods.edn")]
            (let [markdown (->> reader line-seq (str/join "\n"))
-                 ast      (markdown->ast markdown)
-                 marccup  (ast->marccup ast)
-                 html     (ast->html ast)]
+                 tree     (markdown->tree markdown)
+                 marccup  (tree->marccup tree)
+                 html     (tree->html tree)]
              (pp/pprint marccup edn)
              (.write writer html))))
