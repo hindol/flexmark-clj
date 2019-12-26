@@ -1,7 +1,7 @@
 = flexmark-clj
 A (very) thin wrapper around flexmark-java, in Clojure.
 
-Turn `# Hello, world!` into a Hiccup-esque Clojure data structure `[:document {} [:heading {:level 1} [:text {} "Hello, world!"]]]` or into HTML. Uses https://github.com/vsch/flexmark-java[flexmark-java] under the hood to parse and render.
+Turn `# Hello, world!` into a Hiccup-esque Clojure data structure `[:document {} [:heading {:level 1} "Hello, world!"]]` or into HTML. Uses https://github.com/vsch/flexmark-java[flexmark-java] under the hood to parse and render.
 
 == Usage
 
@@ -42,3 +42,19 @@ There are no releases yet. Depend on the `+git+` coordinates directly.
 <2> See: https://github.com/Hindol/flexmark-clj/blob/master/resources/API-Methods.html[API-Methods.html]
 <3> See: https://github.com/Hindol/flexmark-clj/blob/master/resources/API-Methods.edn[API-Methods.edn]
 <4> Marccup = Hiccup-esque Markdown
+
+== Anatomy of a Marccup Node
+
+A `node` is a vector of three things,
+
+[source,clojure]
+----
+[
+    :tag                                        ;; <1>
+    {:attribute-1 value :attribute-2 value ...} ;; <2>
+    [child-1 child-2 ...]                       ;; <3>
+]
+----
+<1> A tag representing the _type_ of node,
+<2> A map of its _attributes_, and,
+<3> A vector of _child_ nodes.
