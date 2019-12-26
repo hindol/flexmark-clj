@@ -13,7 +13,7 @@
    (java.util Arrays)))
 
 (defn update-besu-methods
-  "Pulls latest Besu API methods documentation from Github."
+  "Pulls latest Besu API methods' documentation from Github."
   []
   (with-open [in  (io/input-stream "https://raw.githubusercontent.com/hyperledger/besu-docs/master/docs/Reference/API-Methods.md")
               out (io/output-stream "./resources/API-Methods.md")]
@@ -35,8 +35,8 @@
 (extend-protocol Visitor
   Node
   (visit [this & {visit-fn :visit-fn}]
-    (into (visit-fn this) (for [child (children this)]
-                            (visit child :visit-fn visit-fn)))))
+    (visit-fn this (for [child (children this)]
+                     (visit child :visit-fn visit-fn)))))
 
 (defn markdown->ast
   "Parses a Markdown string into a tree of Flexmark nodes."
@@ -49,7 +49,7 @@
 (defn ast->marccup
   "Walks the tree of Flexmark nodes, outputs a Hiccup-esque Clojure array."
   [parsed]
-  (visit parsed :visit-fn md/render))
+  (visit parsed :visit-fn #(md/render %1 %2 {:unwrap-text true})))
 
 (defn ast->html
   "Takes in a Markdown in AST form, spits the HTML as a string."

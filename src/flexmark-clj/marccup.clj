@@ -4,7 +4,8 @@
    [clojure.string :as str]
    [clojure.walk :as walk])
   (:import
-   (com.vladsch.flexmark.ast Heading
+   (com.vladsch.flexmark.ast FencedCodeBlock
+                             Heading
                              Text)
    (com.vladsch.flexmark.ext.admonition AdmonitionBlock)
    (com.vladsch.flexmark.util.ast Node)))
@@ -35,22 +36,31 @@
            (walk/keywordize-keys)))))
 
 (defprotocol Renderer
-  (render [this]))
+  (render [this children options]))
 
 (extend-protocol Renderer
   AdmonitionBlock
-  (render [this]
-    [(->tag this) {:title (str (.getTitle this))
-                   :info  (str (.getInfo this))}])
+  (render [this children _]
+    (into [(->tag this) {:title (str (.getTitle this))
+                         :info  (str (.getInfo this))}]
+          children))
+
+  FencedCodeBlock
+  (render [this children _]
+    (into [(->tag this) {:info (str (.getInfo this))}]
+          children))
 
   Heading
-  (render [this]
-    [(->tag this) {:level (.getLevel this)}])
+  (render [this children _]
+    (into [(->tag this) {:level (.getLevel this)}] children))
 
   Node
-  (render [this]
-    [(->tag this) (parse-attrs (str this))])
+  (render [this children _]
+    (into [(->tag this) (parse-attrs (str this))] children))
 
   Text
-  (render [this]
-    [(->tag this) {} (str (.getChars this))]))
+  (render [this _ {unwrap-text :unwrap-text}]
+    (let [text (str (.getChars this))]
+      (if unwrap-text
+        text
+        [(->tag this) {} text]))))
